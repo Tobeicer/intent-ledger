@@ -1,0 +1,66 @@
+<!doctype html><!-- Intent Ledger project graph -->
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>项目图 · Intent Ledger</title>
+<style>
+*{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:#f5f8fa;color:#1b3644;font:15px/1.55 system-ui,"Microsoft YaHei",sans-serif}
+main{max-width:1420px;margin:0 auto;padding:32px clamp(18px,4.5vw,72px) 60px}header{border-bottom:2px solid #213e4c;padding-bottom:18px;display:flex;align-items:end;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;color:#41616e;font-size:13px}.mark{width:22px;height:18px;stroke:#16677c;stroke-width:2;fill:#f5f8fa}
+h1{font-size:clamp(25px,3.3vw,46px);line-height:1.15;letter-spacing:-.035em;margin:12px 0 0;overflow-wrap:anywhere}#stats{color:#4c6571;margin:0;font-size:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,31%);gap:clamp(20px,4vw,60px);align-items:start;margin-top:27px}.part{margin-bottom:32px}
+.goal{border-left:4px solid #18748b;padding:8px 14px;background:#e4f0f4}.goal.loose{border-color:#889aa4;background:#eaf0f2}.goal h2,.goal p,.topic h3,.topic p{margin:0;overflow-wrap:anywhere}.goal h2{font-size:19px}.goal p,.topic p{margin-top:4px}
+.kind{font-size:12px;color:#41616e;margin-bottom:4px}.tree{margin-left:19px;padding:0 0 2px 25px;border-left:1px solid #94b6c1}.topic{position:relative;padding:14px 0 9px}.topic:before{content:"";width:20px;position:absolute;left:-25px;top:29px;border-top:1px solid #94b6c1}.topic h3{font-size:15px}.topic p{font-size:14px;color:#47616e}
+.versions{display:flex;align-items:center;gap:5px 3px;flex-wrap:wrap;margin-top:8px}.version{border:1px solid #b7c7ce;background:white;color:#3b5561;font:600 12px/1.3 system-ui,sans-serif;padding:4px 9px;border-radius:18px;cursor:pointer}.version.current{border-color:#4b8997;color:#125c70}.version[aria-pressed=true]{background:#185c71;color:white;border-color:#185c71}.arrow{color:#607d8a;user-select:none}.version:focus-visible,summary:focus-visible{outline:3px solid #bd650b;outline-offset:2px}
+aside{position:sticky;top:16px;min-width:0;background:white;border-top:3px solid #22657b;border-bottom:1px solid #cddce2;padding:19px 20px}aside h2{margin:4px 0 12px;font-size:22px;line-height:1.35;overflow-wrap:anywhere}aside small{color:#47616e}
+dl{margin:16px 0 0}dt{font-size:12px;color:#47616e;font-weight:650;margin-top:13px}dd{margin:3px 0;white-space:pre-wrap;overflow-wrap:anywhere}dd.before{color:#5d6e76}blockquote{margin:5px 0;border-left:2px solid #99acb4;padding:4px 0 4px 11px;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{color:#47616e;padding:15px 0}.retired{color:#705642}aside:focus{outline:none}
+@media(max-width:720px){main{padding-top:20px}.layout{display:flex;flex-direction:column;gap:10px}.layout>*{width:100%}aside{position:static}.tree{margin-left:10px;padding-left:21px}.topic:before{left:-21px;width:16px}.part{margin-bottom:22px}}
+</style>
+<main><header><div><div class="brand"><svg class="mark" aria-hidden="true" viewBox="0 0 24 20"><path d="M4 4v12h16M4 4h16"/><circle cx="4" cy="4" r="2.5"/><circle cx="20" cy="4" r="2.5"/><circle cx="20" cy="16" r="2.5"/></svg>Intent Ledger / 项目图</div><h1 id="title"></h1></div><p id="stats"></p></header>
+<div class="layout"><div id="graph" aria-label="目标和决定"></div><aside id="detail" tabindex="-1" aria-label="所选版本详情" aria-live="polite"></aside></div></main>
+<script type="application/json" id="ledger-data">{{LEDGER_DATA}}</script>
+<script>
+"use strict";
+const data=JSON.parse(document.getElementById("ledger-data").textContent), graph=document.getElementById("graph"), detail=document.getElementById("detail");
+const topics=new Map(), buttons=new Map();
+for(const row of data.rows){if(!topics.has(row.topic))topics.set(row.topic,[]);topics.get(row.topic).push(row);}
+for(const seq of topics.values())seq.sort((a,b)=>a.rev-b.rev);
+const last=s=>s[s.length-1], all=Array.from(topics.values()), goals=all.filter(s=>last(s).kind==="goal"), decisions=all.filter(s=>last(s).kind!=="goal");
+const el=(parent,tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;parent.append(n);return n};
+document.getElementById("title").textContent=data.project;
+document.title=data.project+" · 项目图 · Intent Ledger";
+document.getElementById("stats").textContent=goals.filter(s=>last(s).value).length+" 个当前目标　"+decisions.length+" 项决定　"+data.rows.length+" 个版本";
+function select(seq,index,activate){
+ const r=seq[index],prev=seq[index-1],latest=index===seq.length-1;
+ for(const [row,nodes] of buttons)for(const b of nodes)b.setAttribute("aria-pressed",String(row===r));
+ detail.replaceChildren();
+ el(detail,"small","版本 "+r.rev+" / "+seq.length+"　"+(!r.value?"已撤销":latest?"当前有效":"历史版本"));
+ el(detail,"h2",r.topic);
+ const d=el(detail,"dl");function field(label,value,cls){el(d,"dt",label);el(d,"dd",value,cls);}
+ if(prev)field("修改前",prev.value||"已撤销","before");
+ field(prev?"修改后":"首次确定",r.value||"撤销这项决定");
+ if(r.kind!=="goal")field("当时关联的目标",r.goals.join("、")||"未关联");
+ el(d,"dt","用户原话");const q=el(d,"dd");el(q,"blockquote",r.quote);
+ const instant=new Date(r.at);field("提出时间",isNaN(instant.getTime())?r.at:instant.toLocaleString("zh-CN",{hour12:false}));
+ if(activate&&matchMedia("(max-width:720px)").matches){detail.focus({preventScroll:true});detail.scrollIntoView({block:"start"});}
+}
+function versions(parent,seq){
+ const bar=el(parent,"div",undefined,"versions");
+ seq.forEach((r,i)=>{if(i){const arrow=el(bar,"span","→","arrow");arrow.setAttribute("aria-hidden","true");}
+ const current=i===seq.length-1, b=el(bar,"button","v"+r.rev+(current?(!r.value?" 撤销":" 当前"):""),"version"+(current?" current":""));
+ b.type="button";b.setAttribute("aria-label",r.topic+"，版本 "+r.rev);b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>select(seq,i,true));
+ if(!buttons.has(r))buttons.set(r,[]);buttons.get(r).push(b);});
+}
+function block(goal,children){
+ const section=el(graph,"section",undefined,"part"), h=el(section,"div",undefined,"goal"+(goal?"":" loose"));
+ if(goal){const g=last(goal);el(h,"div",g.value?"项目目标":"已撤销目标","kind");el(h,"h2",g.topic);if(g.value&&g.value!==g.topic)el(h,"p",g.value);versions(h,goal);}
+ else el(h,"h2","未关联目标的决定");
+ if(children.length){const tree=el(section,"div",undefined,"tree");
+ for(const seq of children){const r=last(seq),n=el(tree,"div",undefined,"topic");el(n,"h3",r.topic);if(!r.value||r.value!==r.topic)el(n,"p",r.value||"已撤销");versions(n,seq);}}
+}
+for(const g of goals)block(g,decisions.filter(s=>last(s).goals.includes(last(g).topic)));
+const known=new Set(goals.map(s=>last(s).topic)), loose=decisions.filter(s=>!last(s).goals.some(k=>known.has(k)));
+if(loose.length)block(null,loose);
+if(all.length){const recent=data.rows[data.rows.length-1],seq=topics.get(recent.topic);select(seq,seq.length-1,false);}
+else{el(graph,"p","还没有已保存的目标或决定。","empty");detail.hidden=true;}
+</script></html>

@@ -70,3 +70,45 @@ class LedgerTest(unittest.TestCase):
         self.assertIsNone(self.hook(self.a,"x","disabled")[0])
         self.cli("enable",str(self.a))
         self.assertNotIn("disabled",self.cli("messages",str(self.a)))
+
+    def test_graph_keeps_versions_evidence_and_project_scope(self):
+        def decide(message,topic,value,rev,**meta):
+            ticket,_ = self.hook(self.a,"author",message,str(rev))
+            payload={"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+                "name":"save_decision","arguments":dict(source=ticket,topic=topic,value=value,
+                expected_revision=rev,quote=message,**meta)}}
+            return json.loads(self.cli("mcp",data=json.dumps(payload)))["result"]
+        def rows(path):
+            html=Path(path).read_text(encoding="utf-8")
+            return json.loads(re.search(r'<script type="application/json" id="ledger-data">(.*?)</script>',html,re.S)[1])["rows"]
+        self.assertFalse(decide("一个目标","受众","一个目标",0,kind="goal").get("isError"))
+        self.assertTrue(decide("不串项目","导出","PDF",0,goals=["不存在"]).get("isError"))
+        for rev,(quote,value) in enumerate([("用 PDF","PDF"),("改成 </script>","</script>"),("不再导出","")]):
+            self.assertFalse(decide(quote,"导出",value,rev,**({"goals":["受众"]} if not rev else {})).get("isError"))
+        source,_=self.hook(self.b,"other","SECRET-B")
+        self.save(source,"SECRET-B","SECRET-B",0)
+        out=self.path/"snapshot.html"
+        self.cli("graph",str(self.a),"--output",str(out))
+        result=rows(out)
+        self.assertEqual([r["value"] for r in result],["一个目标","PDF","</script>",""])
+        self.assertEqual(result[-1]["goals"],["受众"])
+        self.assertEqual(result[-2]["quote"],"改成 </script>")
+        self.assertNotIn("SECRET-B",out.read_text(encoding="utf-8"))
+        req={"id":2,"method":"tools/call","params":{"name":"project_graph","arguments":{"source":source}}}
+        path=json.loads(json.loads(self.cli("mcp",data=json.dumps(req)))["result"]["content"][0]["text"])["path"]
+        self.assertEqual([r["value"] for r in rows(path)],["SECRET-B"])
+        self.cli("disable",str(self.a))
+        blocked=self.path/"disabled.html"
+        self.cli("graph",str(self.a),"--output",str(blocked))
+        self.assertFalse(blocked.exists())
+
+    def test_old_database_graph_before_first_v2_write(self):
+        import sqlite3
+        with sqlite3.connect(self.path/"data"/"memory.sqlite3") as db:
+            root=db.execute("SELECT root FROM projects ORDER BY root").fetchone()[0]
+            self.assertFalse(db.execute("SELECT 1 FROM sqlite_master WHERE name='revision_graph'").fetchone())
+            msg=db.execute("INSERT INTO messages(ticket,root,chat,turn,body) VALUES('ticket',?,'c','t','before upgrade')",(root,)).lastrowid
+            db.execute("INSERT INTO revisions VALUES(?,?,?,?,?,?)",(root,"Old topic",1,msg,"old decision","before upgrade"))
+        db.close()
+        out=Path(self.cli("graph",root))
+        self.assertIn('"kind":"decision","goals":[]',out.read_text(encoding="utf-8"))
