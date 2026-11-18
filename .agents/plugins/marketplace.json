@@ -1,0 +1,17 @@
+{
+  "name": "intent-ledger-local",
+  "plugins": [
+    {
+      "name": "intent-ledger",
+      "source": {
+        "source": "local",
+        "path": "./plugin"
+      },
+      "category": "Productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "intent-ledger",
+  "version": "0.1.0",
+  "description": "Local project memory from user messages and explicit decisions.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Intent Ledger",
+        "shortDescription": "Remember current project decisions across chats."
+      }
+    }
+  }
+}
