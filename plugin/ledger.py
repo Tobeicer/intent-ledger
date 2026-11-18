@@ -259,7 +259,7 @@ def respond(req):
     if method == "initialize":
         version = req.get("params",{}).get("protocolVersion")
         result = {"protocolVersion":version if version in ("2024-11-05","2025-03-26","2025-06-18","2025-11-25") else "2025-06-18",
-                  "capabilities":{"tools":{}},"serverInfo":{"name":"intent-ledger","version":"0.2.0"}}
+                  "capabilities":{"tools":{}},"serverInfo":{"name":"intent-ledger","version":"0.3.0"}}
     elif method == "tools/list":
         result = {"tools":TOOLS}
     elif method == "tools/call":

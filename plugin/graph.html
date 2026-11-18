@@ -1,66 +1,109 @@
 <!doctype html><!-- Intent Ledger project graph -->
-<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
-<title>项目图 · Intent Ledger</title>
+<title>项目结构图 · Intent Ledger</title>
 <style>
-*{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:#f5f8fa;color:#1b3644;font:15px/1.55 system-ui,"Microsoft YaHei",sans-serif}
-main{max-width:1420px;margin:0 auto;padding:32px clamp(18px,4.5vw,72px) 60px}header{border-bottom:2px solid #213e4c;padding-bottom:18px;display:flex;align-items:end;justify-content:space-between;gap:18px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:9px;color:#41616e;font-size:13px}.mark{width:22px;height:18px;stroke:#16677c;stroke-width:2;fill:#f5f8fa}
-h1{font-size:clamp(25px,3.3vw,46px);line-height:1.15;letter-spacing:-.035em;margin:12px 0 0;overflow-wrap:anywhere}#stats{color:#4c6571;margin:0;font-size:14px}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,31%);gap:clamp(20px,4vw,60px);align-items:start;margin-top:27px}.part{margin-bottom:32px}
-.goal{border-left:4px solid #18748b;padding:8px 14px;background:#e4f0f4}.goal.loose{border-color:#889aa4;background:#eaf0f2}.goal h2,.goal p,.topic h3,.topic p{margin:0;overflow-wrap:anywhere}.goal h2{font-size:19px}.goal p,.topic p{margin-top:4px}
-.kind{font-size:12px;color:#41616e;margin-bottom:4px}.tree{margin-left:19px;padding:0 0 2px 25px;border-left:1px solid #94b6c1}.topic{position:relative;padding:14px 0 9px}.topic:before{content:"";width:20px;position:absolute;left:-25px;top:29px;border-top:1px solid #94b6c1}.topic h3{font-size:15px}.topic p{font-size:14px;color:#47616e}
-.versions{display:flex;align-items:center;gap:5px 3px;flex-wrap:wrap;margin-top:8px}.version{border:1px solid #b7c7ce;background:white;color:#3b5561;font:600 12px/1.3 system-ui,sans-serif;padding:4px 9px;border-radius:18px;cursor:pointer}.version.current{border-color:#4b8997;color:#125c70}.version[aria-pressed=true]{background:#185c71;color:white;border-color:#185c71}.arrow{color:#607d8a;user-select:none}.version:focus-visible,summary:focus-visible{outline:3px solid #bd650b;outline-offset:2px}
-aside{position:sticky;top:16px;min-width:0;background:white;border-top:3px solid #22657b;border-bottom:1px solid #cddce2;padding:19px 20px}aside h2{margin:4px 0 12px;font-size:22px;line-height:1.35;overflow-wrap:anywhere}aside small{color:#47616e}
-dl{margin:16px 0 0}dt{font-size:12px;color:#47616e;font-weight:650;margin-top:13px}dd{margin:3px 0;white-space:pre-wrap;overflow-wrap:anywhere}dd.before{color:#5d6e76}blockquote{margin:5px 0;border-left:2px solid #99acb4;padding:4px 0 4px 11px;white-space:pre-wrap;overflow-wrap:anywhere}
-.empty{color:#47616e;padding:15px 0}.retired{color:#705642}aside:focus{outline:none}
-@media(max-width:720px){main{padding-top:20px}.layout{display:flex;flex-direction:column;gap:10px}.layout>*{width:100%}aside{position:static}.tree{margin-left:10px;padding-left:21px}.topic:before{left:-21px;width:16px}.part{margin-bottom:22px}}
-</style>
-<main><header><div><div class="brand"><svg class="mark" aria-hidden="true" viewBox="0 0 24 20"><path d="M4 4v12h16M4 4h16"/><circle cx="4" cy="4" r="2.5"/><circle cx="20" cy="4" r="2.5"/><circle cx="20" cy="16" r="2.5"/></svg>Intent Ledger / 项目图</div><h1 id="title"></h1></div><p id="stats"></p></header>
-<div class="layout"><div id="graph" aria-label="目标和决定"></div><aside id="detail" tabindex="-1" aria-label="所选版本详情" aria-live="polite"></aside></div></main>
+*{box-sizing:border-box}body{margin:0;color:#223a42;font:14px/1.45 "Segoe UI","Microsoft YaHei",sans-serif;background:#fbfcfc}
+main{height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr);position:relative}
+header{padding:13px 22px;display:flex;gap:14px;align-items:center;border-bottom:1px solid #d8e1e3;background:#fff;min-height:56px;z-index:1}
+h1{font-size:16px;margin:0;white-space:nowrap}header .icon{height:22px;width:24px;stroke:#237a78;fill:#fff;stroke-width:1.8}
+.controls{margin-left:auto;display:flex;gap:14px;align-items:center}.toggle{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}.toggle input{accent-color:#116760;width:15px;height:15px}
+.zoom{display:flex;align-items:center;border:1px solid #cad5d7;border-radius:6px;overflow:hidden}button{font:inherit;color:inherit;cursor:pointer;background:white;border:0}.zoom button{min-width:32px;height:29px;font-weight:600}.zoom button:last-child{font-size:12px;padding:0 10px;border-left:1px solid #d7e0e0}.zoom button:hover,#close:hover{background:#eaf1f0}button:focus-visible,input:focus-visible{outline:2px solid #06746b;outline-offset:-2px}
+#viewport{overflow:auto;overscroll-behavior:contain;background-color:#f8faf9;background-image:radial-gradient(#d2dfdc .85px,transparent .85px);background-size:18px 18px;cursor:grab;position:relative;touch-action:pan-x pan-y}
+#viewport.drag{cursor:grabbing;user-select:none}#board{display:grid;place-items:center;min-width:100%;min-height:100%;width:max-content}
+#map{display:block;overflow:visible}svg text{font-family:"Segoe UI","Microsoft YaHei",sans-serif}
+.wire{fill:none;stroke:#326e71;stroke-width:2.15}.wire.history{stroke:#a26b35;stroke-width:2;stroke-dasharray:5 4}.wire.hot{stroke-width:3.4}
+.node{cursor:pointer;outline:none}.node.root{cursor:default}.frame{fill:#fff;stroke:#94acac;stroke-width:1.35}.root .frame{fill:#1b3b44;stroke:#1b3b44}.goal .frame{fill:#d9efea;stroke:#388b7e;stroke-width:1.75}.past .frame{fill:#fffaf2;stroke:#c19a72;stroke-dasharray:5 3}
+.node:not(.root):hover .frame,.node:focus-visible .frame,.node.active .frame{stroke:#007065;stroke-width:3}
+.tag{font-size:11.5px;fill:#516c73;font-weight:650}.name{font-size:16px;fill:#173c44;font-weight:700}.body{font-size:13px;fill:#34505a}.root .name{fill:white;font-size:21px}.root .tag{fill:#b9d6d7}.goal .tag{fill:#196958}.past .tag,.past .name{fill:#81542d}.past .body{fill:#74583f}.past .name{font-size:14px}
+#legend{position:absolute;bottom:12px;left:18px;display:flex;align-items:center;gap:15px;pointer-events:none;background:#f8faf9f7;border:1px solid #dce5e3;padding:6px 10px;border-radius:5px;color:#415b60;font-size:12px}
+#legend span{display:flex;gap:6px;align-items:center}#legend i{width:21px;border-top:2px solid #326e71;position:relative}#legend i:after{content:"";position:absolute;right:-1px;top:-4px;border-left:5px solid #326e71;border-top:3px solid transparent;border-bottom:3px solid transparent}#legend .old{border-top:2px dashed #a26b35}#legend .old:after{border-left-color:#a26b35}
+#detail{position:absolute;z-index:2;right:14px;bottom:12px;width:min(348px,calc(100% - 28px));max-height:70%;overflow:auto;background:#fff;border:1px solid #b7c9ca;border-top:3px solid #227568;border-radius:7px;box-shadow:0 8px 36px #173e4620;padding:14px 17px}
+#close{float:right;width:28px;height:27px;border-radius:5px;font-size:20px;line-height:1}#detail h2{font-size:18px;margin:3px 0 9px}#detail small,dt{font-size:12px;color:#51696d}dl{margin:0}dt{margin-top:8px}dd{margin:1px 0;overflow-wrap:anywhere;white-space:pre-wrap}
+#blank{position:absolute;top:38%;width:100%;text-align:center;color:#4f696b}.tiptitle{font-size:12px}
+@media(max-width:520px){header{padding:10px;gap:6px}.controls{gap:7px}header .icon{display:none}}
+</style></head>
+<body><main><header><svg aria-hidden="true" class="icon" viewBox="0 0 24 22"><path d="M12 4v6M4 16v-6h16v6"/><rect x="8" y="1" width="8" height="5" rx="1"/><rect x="1" y="16" width="6" height="4" rx="1"/><rect x="17" y="16" width="6" height="4" rx="1"/></svg><h1>项目结构图</h1>
+<div class="controls"><label class="toggle"><input id="history" type="checkbox" checked>历史版本</label><div class="zoom"><button id="out" aria-label="缩小">−</button><button id="in" aria-label="放大">＋</button><button id="fit">全图</button></div></div></header>
+<div id="viewport" tabindex="0" aria-label="结构图画布"><div id="board"><svg id="map" role="group" aria-label="项目、目标、决定和版本之间的关系"></svg></div></div>
+<div id="legend"><span><i></i>归属关系</span><span id="oldkey"><i class="old"></i>旧版 → 新版</span></div>
+<p id="blank" hidden>还没有记录目标或决定。</p>
+<aside id="detail" hidden aria-label="节点详情"><button id="close" aria-label="关闭详情">×</button><div id="info"></div></aside></main>
 <script type="application/json" id="ledger-data">{{LEDGER_DATA}}</script>
 <script>
 "use strict";
-const data=JSON.parse(document.getElementById("ledger-data").textContent), graph=document.getElementById("graph"), detail=document.getElementById("detail");
-const topics=new Map(), buttons=new Map();
-for(const row of data.rows){if(!topics.has(row.topic))topics.set(row.topic,[]);topics.get(row.topic).push(row);}
-for(const seq of topics.values())seq.sort((a,b)=>a.rev-b.rev);
-const last=s=>s[s.length-1], all=Array.from(topics.values()), goals=all.filter(s=>last(s).kind==="goal"), decisions=all.filter(s=>last(s).kind!=="goal");
-const el=(parent,tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;parent.append(n);return n};
-document.getElementById("title").textContent=data.project;
-document.title=data.project+" · 项目图 · Intent Ledger";
-document.getElementById("stats").textContent=goals.filter(s=>last(s).value).length+" 个当前目标　"+decisions.length+" 项决定　"+data.rows.length+" 个版本";
-function select(seq,index,activate){
- const r=seq[index],prev=seq[index-1],latest=index===seq.length-1;
- for(const [row,nodes] of buttons)for(const b of nodes)b.setAttribute("aria-pressed",String(row===r));
- detail.replaceChildren();
- el(detail,"small","版本 "+r.rev+" / "+seq.length+"　"+(!r.value?"已撤销":latest?"当前有效":"历史版本"));
- el(detail,"h2",r.topic);
- const d=el(detail,"dl");function field(label,value,cls){el(d,"dt",label);el(d,"dd",value,cls);}
- if(prev)field("修改前",prev.value||"已撤销","before");
- field(prev?"修改后":"首次确定",r.value||"撤销这项决定");
- if(r.kind!=="goal")field("当时关联的目标",r.goals.join("、")||"未关联");
- el(d,"dt","用户原话");const q=el(d,"dd");el(q,"blockquote",r.quote);
- const instant=new Date(r.at);field("提出时间",isNaN(instant.getTime())?r.at:instant.toLocaleString("zh-CN",{hour12:false}));
- if(activate&&matchMedia("(max-width:720px)").matches){detail.focus({preventScroll:true});detail.scrollIntoView({block:"start"});}
+const $=id=>document.getElementById(id), NS="http://www.w3.org/2000/svg", svg=$("map"),vp=$("viewport"), detail=$("detail");
+const data=JSON.parse($("ledger-data").textContent);document.title=data.project+" · 项目结构图";
+function S(parent,tag,attrs={},text){const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);if(text!==undefined)e.textContent=text;parent.append(e);return e;}
+function H(parent,tag,text){const e=document.createElement(tag);e.textContent=text;parent.append(e);return e;}
+const groups=new Map();for(const r of data.rows){if(!groups.has(r.topic))groups.set(r.topic,[]);groups.get(r.topic).push(r);}
+for(const a of groups.values())a.sort((x,y)=>x.rev-y.rev);
+const W=198,PAD=22,GAP=34,VGAP=56;let bounds={w:1,h:1},scale=1,selected=null,views=new Map(),wires=[];
+const measure=document.createElement("canvas").getContext("2d");
+function wrap(value,size,weight,maxWidth,count){measure.font=weight+" "+size+'px "Segoe UI","Microsoft YaHei",sans-serif';let lines=[],line="";
+ for(const c of Array.from(String(value).replace(/\s+/g," "))){if(line&&measure.measureText(line+c).width>maxWidth){lines.push(line);line="";}line+=c;}if(line)lines.push(line);
+ if(lines.length>count){let a=lines[count-1];while(a&&measure.measureText(a+"…").width>maxWidth)a=Array.from(a).slice(0,-1).join("");lines=lines.slice(0,count);lines[count-1]=a+"…";}return lines;}
+function make(type,r=null,seq=null){const root=type==="root",past=type==="past",name=root?data.project:past?(r.value||"已撤销"):r.topic;
+ const title=wrap(name,root?21:past?14:16,700,W-32,past?3:2),desc=(root||past||r.value===r.topic)?[]:wrap(r.value||"已撤销",13,400,W-32,2);
+ const tag=root?"项目":past?"历史版本  v"+r.rev:(r.kind==="goal"?"项目目标":"决定")+"  ·  v"+r.rev+(r.value?"":"  ·  已撤销");
+ return {type,r,seq,tag,title,desc,h:28+title.length*21+desc.length*18+15,children:[],x:0,y:0,depth:0};}
+function model(history){
+ const root=make("root"),heads=new Map(),nodes=[root],edges=[];
+ function add(a,b,kind,primary){edges.push({a,b,kind});if(primary)a.children.push(b);}
+ for(const [topic,seq] of groups){const r=seq[seq.length-1],n=make(r.kind==="goal"?"goal":"decision",r,seq);heads.set(topic,n);nodes.push(n);}
+ for(const n of heads.values()){if(n.type==="goal")add(root,n,"logic",true);}
+ for(const n of heads.values()){if(n.type==="goal")continue;const p=n.r.goals.map(g=>heads.get(g)).filter(x=>x&&x.type==="goal");
+  if(p.length)p.forEach((parent,i)=>add(parent,n,"logic",i===0));else add(root,n,"logic",true);}
+ if(history){for(const n of heads.values()){let newer=n;
+  for(let i=n.seq.length-2;i>=0;i--){const older=make("past",n.seq[i],n.seq);nodes.push(older);newer.children.push(older);edges.push({a:older,b:newer,kind:"history"});newer=older;}}}
+ // Each topic has one layout parent. Additional parents get real edges to that same node.
+ const depths=[],order=[root];for(let i=0;i<order.length;i++){const n=order[i];depths[n.depth]=Math.max(depths[n.depth]||0,n.h);
+  for(const c of n.children){c.depth=n.depth+1;order.push(c);}}
+ for(let i=order.length-1;i>=0;i--){const n=order[i];n.span=n.children.reduce((s,c)=>s+c.span,0)||1;}
+ const ys=[PAD];for(let i=1;i<depths.length;i++)ys[i]=ys[i-1]+depths[i-1]+VGAP;
+ root.start=0;for(const n of order){n.x=PAD+(n.start+n.span/2)*(W+GAP)-GAP/2;n.y=ys[n.depth];let left=n.start;
+  for(const c of n.children){c.start=left;left+=c.span;}}
+ return {nodes,edges,w:2*PAD+root.span*(W+GAP)-GAP,h:ys[ys.length-1]+depths[depths.length-1]+PAD};
 }
-function versions(parent,seq){
- const bar=el(parent,"div",undefined,"versions");
- seq.forEach((r,i)=>{if(i){const arrow=el(bar,"span","→","arrow");arrow.setAttribute("aria-hidden","true");}
- const current=i===seq.length-1, b=el(bar,"button","v"+r.rev+(current?(!r.value?" 撤销":" 当前"):""),"version"+(current?" current":""));
- b.type="button";b.setAttribute("aria-label",r.topic+"，版本 "+r.rev);b.setAttribute("aria-pressed","false");b.addEventListener("click",()=>select(seq,i,true));
- if(!buttons.has(r))buttons.set(r,[]);buttons.get(r).push(b);});
+function closeInfo(focus=false){detail.hidden=true;const old=selected;selected=null;for(const g of views.values())g.classList.remove("active");for(const p of wires)p.el.classList.remove("hot");if(focus&&views.has(old))views.get(old).focus();}
+function inspect(n){if(!n.r)return;selected=n;for(const [item,g] of views)g.classList.toggle("active",item===n);for(const p of wires)p.el.classList.toggle("hot",p.a===n||p.b===n);
+ const r=n.r,i=n.seq.indexOf(r),prev=n.seq[i-1],div=$("info");div.replaceChildren();H(div,"small",n.tag);H(div,"h2",r.topic);const dl=H(div,"dl","");
+ function field(k,v){H(dl,"dt",k);H(dl,"dd",v);}
+ if(prev)field("修改前",prev.value||"已撤销");field(prev?"修改后":"首次确定",r.value||"已撤销");if(r.goals.length)field("当时关联的目标",r.goals.join("、"));field("用户原话",r.quote);
+ const date=new Date(r.at);field("提出时间",isNaN(date)?r.at:date.toLocaleString("zh-CN",{hour12:false}));detail.hidden=false;}
+function render(){closeInfo();views.clear();wires=[];svg.replaceChildren();const show=$("history").checked,M=model(show);bounds=M;
+ $("oldkey").style.display=show?"":"none";$("blank").hidden=data.rows.length>0;svg.setAttribute("viewBox","0 0 "+M.w+" "+M.h);
+ const defs=S(svg,"defs");for(const [id,col] of [["logic","#326e71"],["history","#a26b35"]]){const a=S(defs,"marker",{id:"arrow-"+id,viewBox:"0 0 10 10",refX:9,refY:5,markerWidth:7,markerHeight:7,orient:"auto",markerUnits:"userSpaceOnUse"});S(a,"path",{d:"M0 0 L10 5 L0 10 Z",fill:col});}
+ const lineLayer=S(svg,"g",{"aria-hidden":"true"}),nodeLayer=S(svg,"g");if(!data.rows.length){fit(true);return;}
+ // Distinct ports prevent multiple parents or revision arrows from hiding each other.
+ const ports=new Map();for(const n of M.nodes)ports.set(n,{top:[],bottom:[]});
+ for(const e of M.edges){const down=e.a.y<e.b.y;e.from=down?"bottom":"top";e.to=down?"top":"bottom";ports.get(e.a)[e.from].push([e,e.b.x]);ports.get(e.b)[e.to].push([e,e.a.x]);}
+ for(const [n,p] of ports)for(const end of ["top","bottom"]){const seq=p[end].sort((a,b)=>a[1]-b[1]);seq.forEach(([e],i)=>{const x=n.x+(i-(seq.length-1)/2)*Math.min(24,(W-44)/seq.length);if(e.a===n)e.x1=x;else e.x2=x;});}
+ const labels=[];for(const e of M.edges){const y1=e.a.y+(e.from==="bottom"?e.a.h:0),y2=e.b.y+(e.to==="bottom"?e.b.h:0),mid=(y1+y2)/2;
+ const el=S(lineLayer,"path",{class:"wire "+e.kind,d:"M"+e.x1+" "+y1+" C"+e.x1+" "+mid+" "+e.x2+" "+mid+" "+e.x2+" "+y2,"marker-end":"url(#arrow-"+e.kind+")","data-from":e.a.r?e.a.r.topic+"#"+e.a.r.rev:"project","data-to":e.b.r?e.b.r.topic+"#"+e.b.r.rev:"project"});wires.push({...e,el});
+ const label=e.kind==="history"?"改为":e.a.type==="goal"?"落实为":e.b.type==="goal"?"目标":"直属决定";
+ S(el,"title",{},label);const mx=(e.x1+e.x2)/2+8,my=mid-3;
+ if(!labels.some(p=>Math.abs(p[0]-mx)<50&&Math.abs(p[1]-my)<17)){
+  labels.push([mx,my]);S(lineLayer,"text",{x:mx,y:my,"font-size":11.5,fill:e.kind==="history"?"#875d37":"#39685f",stroke:"#f8faf9","stroke-width":4,"paint-order":"stroke","stroke-linejoin":"round"},label);}
+ }
+ for(const n of M.nodes){const x=n.x-W/2,root=n.type==="root",past=n.type==="past",g=S(nodeLayer,"g",{class:"node "+n.type,transform:"translate("+x+","+n.y+")"});views.set(n,g);
+ const label=root?data.project:n.r.topic+"，版本 "+n.r.rev;g.setAttribute("aria-label",label);S(g,"title",{},root?label:label+"\n"+(n.r.value||"已撤销"));
+ if(n.type==="goal"){S(g,"path",{class:"frame",d:"M10 0 H"+(W-10)+" L"+W+" 10 V"+(n.h-10)+" L"+(W-10)+" "+n.h+" H10 L0 "+(n.h-10)+" V10 Z"});}
+ else S(g,"rect",{class:"frame",width:W,height:n.h,rx:root?12:6});
+ S(g,"text",{class:"tag",x:15,y:20},n.tag);let y=43;for(const line of n.title){S(g,"text",{class:"name",x:15,y},line);y+=21;}
+ for(const line of n.desc){S(g,"text",{class:"body",x:15,y:y-2},line);y+=18;}
+ if(!root){g.setAttribute("tabindex","0");g.setAttribute("role","button");g.addEventListener("click",()=>inspect(n));g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();inspect(n);$("close").focus();}});}
+ }
+ fit(true);
 }
-function block(goal,children){
- const section=el(graph,"section",undefined,"part"), h=el(section,"div",undefined,"goal"+(goal?"":" loose"));
- if(goal){const g=last(goal);el(h,"div",g.value?"项目目标":"已撤销目标","kind");el(h,"h2",g.topic);if(g.value&&g.value!==g.topic)el(h,"p",g.value);versions(h,goal);}
- else el(h,"h2","未关联目标的决定");
- if(children.length){const tree=el(section,"div",undefined,"tree");
- for(const seq of children){const r=last(seq),n=el(tree,"div",undefined,"topic");el(n,"h3",r.topic);if(!r.value||r.value!==r.topic)el(n,"p",r.value||"已撤销");versions(n,seq);}}
-}
-for(const g of goals)block(g,decisions.filter(s=>last(s).goals.includes(last(g).topic)));
-const known=new Set(goals.map(s=>last(s).topic)), loose=decisions.filter(s=>!last(s).goals.some(k=>known.has(k)));
-if(loose.length)block(null,loose);
-if(all.length){const recent=data.rows[data.rows.length-1],seq=topics.get(recent.topic);select(seq,seq.length-1,false);}
-else{el(graph,"p","还没有已保存的目标或决定。","empty");detail.hidden=true;}
-</script></html>
+function size(){svg.style.width=bounds.w*scale+"px";svg.style.height=bounds.h*scale+"px";}
+function fit(initial=false){const ratio=Math.min(1.35,(vp.clientWidth-24)/bounds.w,(vp.clientHeight-68)/bounds.h);scale=initial?Math.max(.78,ratio):Math.max(.015,ratio);size();vp.scrollLeft=(vp.scrollWidth-vp.clientWidth)/2;vp.scrollTop=0;}
+function zoom(factor){const old=scale,rx=vp.scrollWidth>vp.clientWidth?(vp.scrollLeft+vp.clientWidth/2)/(bounds.w*old):.5,ry=vp.scrollHeight>vp.clientHeight?(vp.scrollTop+vp.clientHeight/2)/(bounds.h*old):.5;
+ scale=Math.max(.08,Math.min(3,scale*factor));size();vp.scrollLeft=rx*bounds.w*scale-vp.clientWidth/2;vp.scrollTop=ry*bounds.h*scale-vp.clientHeight/2;}
+$("close").onclick=()=>closeInfo(true);$("in").onclick=()=>zoom(1.25);$("out").onclick=()=>zoom(.8);$("fit").onclick=()=>fit();$("history").onchange=render;
+window.addEventListener("keydown",e=>{if(e.key==="Escape")closeInfo(true);});let drag=null;
+vp.addEventListener("pointerdown",e=>{if(e.button||e.target.closest(".node"))return;closeInfo();drag={x:e.clientX,y:e.clientY,l:vp.scrollLeft,t:vp.scrollTop};vp.setPointerCapture(e.pointerId);vp.classList.add("drag");});
+vp.addEventListener("pointermove",e=>{if(drag){vp.scrollLeft=drag.l+drag.x-e.clientX;vp.scrollTop=drag.t+drag.y-e.clientY;}});
+vp.addEventListener("lostpointercapture",()=>{drag=null;vp.classList.remove("drag");});
+render();new ResizeObserver(()=>fit(true)).observe(vp);
+</script></body></html>
